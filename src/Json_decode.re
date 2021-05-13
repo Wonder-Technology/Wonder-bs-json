@@ -196,6 +196,8 @@ let field = (key, decode, json) =>
     raise @@ DecodeError("Expected object, got " ++ _stringify(json));
   };
 
+let getFailValueForOptimized = () => -1000000;
+
 let optimizedField = (key, decode, json) =>
   if (Js.typeof(json) == "object"
       && ! Js.Array.isArray(json)
@@ -210,7 +212,7 @@ let optimizedField = (key, decode, json) =>
     /* decode(value) */
     /* | None => raise @@ DecodeError({j|Expected field '$(key)'|j}) */
     | None =>
-      Obj.magic(1000)
+      Obj.magic(getFailValueForOptimized())
     };
   } else {
     raise @@ DecodeError("Expected object, got " ++ _stringify(json));
@@ -233,7 +235,7 @@ let optional = (decode, json) =>
 
 let optimizedOptional = (decode, json) => {
   let result = decode(json);
-  result === Obj.magic(1000) ? None : result |. Some;
+  result === Obj.magic(getFailValueForOptimized()) ? None : result |. Some;
 };
 
 let oneOf = (decoders, json) => {
